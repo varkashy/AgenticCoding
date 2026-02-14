@@ -20,6 +20,16 @@ function App() {
   const [location, setLocation] = useState(null);         // Stores location info (coordinates, timezone)
   const [loading, setLoading] = useState(false);          // Shows loading spinner while fetching
   const [error, setError] = useState(null);               // Stores error messages to display
+  const [temperatureUnit, setTemperatureUnit] = useState('F');  // Toggle between 'F' (Fahrenheit) and 'C' (Celsius)
+
+  // ============ TEMPERATURE CONVERSION HELPER ============
+  // Converts Fahrenheit to Celsius or vice versa
+  const convertTemp = (fahrenheit, toUnit) => {
+    if (toUnit === 'C') {
+      return Math.round((fahrenheit - 32) * (5 / 9));
+    }
+    return Math.round(fahrenheit);  // Already in Fahrenheit
+  };
 
   // ============ FETCH WEATHER BY COORDINATES ============
   // Called when user grants geolocation permission or when app loads
@@ -65,6 +75,26 @@ function App() {
   // Runs once when component mounts ([] dependency array)
   // Requests user's current location and fetches weather for it
   // Falls back to San Francisco if geolocation fails
+  //
+  // NAVIGATOR OBJECT EXPLAINED:
+  // ===========================
+  // navigator is a built-in JavaScript object that contains information about the user's browser
+  // and device. It has many properties and methods:
+  //   - navigator.geolocation: API to access user's GPS location
+  //   - navigator.language: Browser language setting
+  //   - navigator.userAgent: Information about the browser
+  //   - navigator.onLine: Whether device has internet connection
+  //
+  // navigator.geolocation API:
+  // - getCurrentPosition(): Gets the user's CURRENT location (one-time request)
+  // - watchPosition(): Continuously monitors location changes
+  // - First asks for user permission; user can accept or deny
+  // - Returns coordinates object with latitude, longitude, accuracy, altitude, etc.
+  // - HTTPS required in production for security reasons
+  //
+  // In this app:
+  // - We use navigator.geolocation.getCurrentPosition() on app load
+  // - If user denies permission, we default to San Francisco coordinates
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -89,7 +119,18 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <h1>🌤️ Weather App</h1>
+        <div className="header">
+          <h1>🌤️ Weather App</h1>
+          
+          {/* Temperature unit toggle button */}
+          <button 
+            className="temp-toggle" 
+            onClick={() => setTemperatureUnit(temperatureUnit === 'F' ? 'C' : 'F')}
+            title="Toggle between Fahrenheit and Celsius"
+          >
+            °{temperatureUnit}
+          </button>
+        </div>
         
         {/* Search component - lets user enter a city name */}
         <WeatherSearch onSearch={fetchWeatherByCity} />
@@ -100,8 +141,8 @@ function App() {
         {/* Show loading spinner while fetching data */}
         {loading && <div className="loading">Loading weather data...</div>}
         
-        {/* Show weather details once data is loaded */}
-        {weather && <WeatherDisplay weather={weather} />}
+        {/* Show weather details with converted temperature if needed */}
+        {weather && <WeatherDisplay weather={weather} temperatureUnit={temperatureUnit} convertTemp={convertTemp} />}
       </div>
     </div>
   );

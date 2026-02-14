@@ -6,11 +6,12 @@
  * - Current temperature and weather description
  * - Weather icon based on weather conditions
  * - Additional metrics: feels-like temp, humidity, wind speed, precipitation
+ * - Converts temperatures between Fahrenheit and Celsius based on user preference
  */
 
 import './WeatherDisplay.css';
 
-function WeatherDisplay({ weather }) {
+function WeatherDisplay({ weather, temperatureUnit = 'F', convertTemp }) {
   // Don't render if no weather data is available
   if (!weather) return null;
 
@@ -54,9 +55,9 @@ function WeatherDisplay({ weather }) {
         <div className="weather-info">
           {/* ============ MAIN TEMPERATURE DISPLAY ============ */}
           <div className="temp-section">
-            {/* Large font temperature in Fahrenheit */}
+            {/* Large font temperature - converted based on user's preference */}
             <div className="temperature">
-              {Math.round(current_weather.temperature)}°F
+              {convertTemp ? convertTemp(current_weather.temperature, temperatureUnit) : Math.round(current_weather.temperature)}°{temperatureUnit}
             </div>
             {/* Human-readable weather description */}
             <div className="description">
@@ -70,7 +71,7 @@ function WeatherDisplay({ weather }) {
             {/* Apparent temperature: what it feels like due to wind chill/humidity */}
             <div className="detail-item">
               <span className="label">Feels Like:</span>
-              <span className="value">{Math.round(current_weather.apparent_temperature)}°F</span>
+              <span className="value">{convertTemp ? convertTemp(current_weather.apparent_temperature, temperatureUnit) : Math.round(current_weather.apparent_temperature)}°{temperatureUnit}</span>
             </div>
             
             {/* Humidity percentage: amount of moisture in air */}
