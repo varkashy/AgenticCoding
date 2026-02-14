@@ -7,9 +7,48 @@
  * 2. Get weather by city name (with automatic geocoding)
  */
 
+// ============ IMPORTS ============
 import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
+
+/**
+ * CORS (Cross-Origin Resource Sharing)
+ * ====================================
+ * Problem they solve:
+ *   By default, browsers block requests from one domain/port to another for security.
+ *   Without CORS, frontend (localhost:3000) cannot talk to backend (localhost:8000).
+ * 
+ * What cors() does:
+ *   - Adds HTTP headers that tell the browser "it's OK to access this API from different origins"
+ *   - Allows the frontend to make requests to this backend without CORS errors
+ *   - Example header added: 'Access-Control-Allow-Origin: *' (or specific origins)
+ * 
+ * In this app:
+ *   app.use(cors()) enables all requests from any origin (any domain/port can access it)
+ *   Safe for development; in production, you'd restrict to specific domains for security
+ */
+
+/**
+ * AXIOS
+ * =====
+ * What it does:
+ *   - A JavaScript library for making HTTP requests to external APIs
+ *   - Built on top of Promises, making it easier than raw fetch() API
+ *   - Automatically handles request/response formatting
+ * 
+ * In this app:
+ *   - Used to call the Open-Meteo Weather API to get real weather data
+ *   - Example: axios.get('https://api.open-meteo.com/v1/forecast', { params: {...} })
+ *   - Supports GET, POST, PUT, DELETE and other HTTP methods
+ *   - Automatically converts JSON responses to JavaScript objects
+ * 
+ * Why we use it instead of fetch():
+ *   - More concise syntax
+ *   - Better error handling
+ *   - Built-in request/response interceptors
+ *   - Handles JSON automatically
+ */
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -17,7 +56,7 @@ const PORT = process.env.PORT || 8000;
 // ============ MIDDLEWARE ============
 // Enable CORS - allows frontend (different port) to communicate with this backend
 app.use(cors());
-// Enable JSON request body parsing
+// Enable JSON request body parsing - converts incoming JSON to JavaScript objects
 app.use(express.json());
 
 // ============ HEALTH CHECK ENDPOINT ============
