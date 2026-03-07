@@ -181,8 +181,9 @@ DB_DRIVER=oracle.jdbc.OracleDriver # Oracle driver
 
 ## Build Verification
 
-✅ **Application compiled**: `target/user-subscription-1.0.0.jar` (28 MB)
-✅ **Oracle JDBC driver included**
+✅ **Application compiled**: `target/user-subscription-1.0.0.jar` (36 MB)
+✅ **Oracle JDBC driver included** (ojdbc8 21.9.0.0)
+✅ **Oracle security libraries included** (wallet support)
 ✅ **Spring Boot 3.1.0 configured**
 ✅ **All dependencies resolved**
 ✅ **Ready for testing**

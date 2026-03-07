@@ -51,6 +51,39 @@
             <version>8.0.33</version>
         </dependency>
 
+        <!-- Oracle JDBC Driver for OCI Autonomous Database -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+
+        <!-- Oracle UCP (Universal Connection Pool) -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ucp</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+
+        <!-- Oracle Security libs for wallet support -->
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>oraclepki</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_core</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_cert</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+
         <!-- JSON Processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
