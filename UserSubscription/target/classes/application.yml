@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: user-subscription
+  boot:
+    admin:
+      enabled: false
+  
+  # DataSource configuration for RDBMS
+  # Defaults to local MySQL for development
+  # For Autonomous AI Database, use application-oci.yml profile
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/userdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:UserSubscription@123}
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+  
+  # Connection pool configuration
+  hikari:
+    maximum-pool-size: 10
+    minimum-idle: 5
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Springdoc OpenAPI (Swagger) configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    use-root-path: true
+
+# Application-specific configuration
+app:
+  # Persistence type: 'in-memory' or 'rdbms'
+  persistence:
+    type: rdbms
+  
+  # Database initialization settings
+  database:
+    # Auto-create database if it doesn't exist
+    auto-create: true
+    # Auto-initialize schema on startup
+    auto-init-schema: true
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.agentic.subscription: DEBUG
+    com.oracle.bmc: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Actuator endpoints for monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,74 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: user-subscription
+  boot:
+    admin:
+      enabled: false
+  
+  # OCI Autonomous AI Database connection
+  # Supports multiple connection methods:
+  # 1. Using Oracle Wallet (TNS):
+  #    jdbc:oracle:thin:@<db_name>_high?TNS_ADMIN=/path/to/wallet
+  #    Requires wallet files downloaded from OCI console
+  # 2. Direct connection with hostname:
+  #    jdbc:oracle:thin:@<hostname>:<port>/<service_name>
+  # 3. Using connection string from OCI:
+  #    Set SPRING_DATASOURCE_URL environment variable
+  datasource:
+    # Default: Autonomous AI Database with wallet
+    # For Autonomous AI Database named 'usersubdb', use hostname from OCI console
+    url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@usersubdb_high?TNS_ADMIN=/opt/oracle/tns/Wallet_usersubdb}
+    username: ${SPRING_DATASOURCE_USERNAME:admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:UserSubscription@123}
+    driver-class-name: ${DB_DRIVER:oracle.jdbc.OracleDriver}
+  
+  # Connection pool configuration optimized for Autonomous Database
+  hikari:
+    maximum-pool-size: 20
+    minimum-idle: 5
+    connection-timeout: 30000
+    idle-timeout: 900000
+    max-lifetime: 1800000
+    auto-commit: true
+
+# Springdoc OpenAPI (Swagger) configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+# Application-specific configuration
+app:
+  persistence:
+    type: rdbms
+  
+  # Database initialization settings
+  database:
+    auto-create: true
+    auto-init-schema: true
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.agentic.subscription: INFO
+    oracle: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator endpoints for monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
