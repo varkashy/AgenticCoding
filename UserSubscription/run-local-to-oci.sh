@@ -12,7 +12,7 @@ echo ""
 
 # Database Details
 DB_NAME="user-subscription-aidb"
-JDBC_URL="jdbc:oracle:thin:@adb.us-ashburn-1.oraclecloud.com:1522/g006c23f27d5d41_usersubdb_high.adb.oraclecloud.com"
+JDBC_URL="jdbc:oracle:thin:@usersubdb_high?TNS_ADMIN=$HOME/.oci/wallet"
 DB_USER="admin"
 DB_PASS="UserSubscription@123"
 
@@ -90,6 +90,7 @@ echo ""
 
 echo "Setting environment variables..."
 export TNS_ADMIN="$WALLET_DIR"
+JDBC_URL="jdbc:oracle:thin:@usersubdb_high?TNS_ADMIN=${TNS_ADMIN}"
 export SPRING_DATASOURCE_URL="$JDBC_URL"
 export SPRING_DATASOURCE_USERNAME="$DB_USER"
 export SPRING_DATASOURCE_PASSWORD="$DB_PASS"

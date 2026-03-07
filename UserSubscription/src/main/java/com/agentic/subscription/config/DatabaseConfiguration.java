@@ -1,10 +1,8 @@
 package com.agentic.subscription.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,10 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -105,6 +99,12 @@ public class DatabaseConfiguration {
     private void initializeDatabaseIfNeeded(
             org.springframework.boot.autoconfigure.jdbc.DataSourceProperties dataSourceProperties) {
         try {
+            String driverClassName = dataSourceProperties.getDriverClassName();
+            if (driverClassName != null && driverClassName.toLowerCase().contains("oracle")) {
+                logger.info("Oracle database detected - skipping pre-initialization database creation check");
+                return;
+            }
+
             // Extract database name from URL
             String url = dataSourceProperties.getUrl();
             String dbName = extractDatabaseName(url);
@@ -223,31 +223,15 @@ public class DatabaseConfiguration {
     private void initializeDatabase(JdbcTemplate jdbcTemplate) {
         try {
             logger.info("Checking if users table exists...");
-            
-            // Check if table exists
-            Integer tableCount = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM information_schema.tables " +
-                "WHERE table_schema = DATABASE() AND table_name = 'users'",
-                Integer.class
-            );
-            
-            if (tableCount != null && tableCount > 0) {
+
+            if (tableExists(jdbcTemplate, "users")) {
                 logger.info("Users table already exists");
                 return;
             }
-            
-            // Create table if it doesn't exist
+
+            // Create tables with database-specific DDL
             logger.info("Creating users table...");
-            String createTableSql = getDDLScript();
-            
-            String[] statements = createTableSql.split(";");
-            for (String statement : statements) {
-                String trimmed = statement.trim();
-                if (!trimmed.isEmpty()) {
-                    jdbcTemplate.execute(trimmed);
-                    logger.debug("Executed DDL: {}", trimmed.substring(0, Math.min(50, trimmed.length())));
-                }
-            }
+            executeDdlStatements(jdbcTemplate, getDDLStatements(jdbcTemplate));
             
             logger.info("Database schema initialized successfully");
         } catch (Exception e) {
@@ -256,51 +240,103 @@ public class DatabaseConfiguration {
             
             // Try alternative method
             try {
-                String[] statements = getDDLScript().split(";");
-                for (String statement : statements) {
-                    String trimmed = statement.trim();
-                    if (!trimmed.isEmpty()) {
-                        try {
-                            jdbcTemplate.execute(trimmed);
-                        } catch (Exception ex) {
-                            logger.debug("Statement failed (table may exist): {}", trimmed);
-                        }
-                    }
-                }
+                executeDdlStatements(jdbcTemplate, getDDLStatements(jdbcTemplate));
             } catch (Exception ex) {
                 logger.error("Could not initialize schema", ex);
             }
         }
     }
-    
-    /**
-     * Get DDL script for creating users table
-     * Compatible with MySQL, PostgreSQL, and Oracle Autonomous Database
-     * 
-     * @return DDL script for table creation
-     */
-    private String getDDLScript() {
-        return "CREATE TABLE IF NOT EXISTS users (" +
-               "  id VARCHAR(36) PRIMARY KEY," +
-               "  name VARCHAR(255) NOT NULL," +
-               "  age INT," +
-               "  city VARCHAR(255)," +
-               "  company VARCHAR(255)," +
-               "  interests JSON," +
-               "  created_at BIGINT NOT NULL," +
-               "  updated_at BIGINT NOT NULL," +
-               "  INDEX idx_created_at (created_at)," +
-               "  INDEX idx_name (name)" +
-               "); " +
-               "CREATE TABLE IF NOT EXISTS audit_log (" +
-               "  id VARCHAR(36) PRIMARY KEY," +
-               "  user_id VARCHAR(36) NOT NULL," +
-               "  action VARCHAR(50) NOT NULL," +
-               "  timestamp BIGINT NOT NULL," +
-               "  INDEX idx_user_id (user_id)," +
-               "  INDEX idx_timestamp (timestamp)," +
-               "  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE" +
-               ");";
+
+    private boolean tableExists(JdbcTemplate jdbcTemplate, String tableName) {
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+            var metaData = connection.getMetaData();
+            try (var resultSet = metaData.getTables(null, null, tableName.toUpperCase(), new String[]{"TABLE"})) {
+                if (resultSet.next()) {
+                    return true;
+                }
+            }
+            try (var resultSet = metaData.getTables(null, null, tableName.toLowerCase(), new String[]{"TABLE"})) {
+                return resultSet.next();
+            }
+        } catch (Exception e) {
+            logger.warn("Could not check table existence using metadata: {}", e.getMessage());
+            return false;
+        }
     }
+
+    private void executeDdlStatements(JdbcTemplate jdbcTemplate, String[] statements) {
+        for (String statement : statements) {
+            String trimmed = statement.trim();
+            if (!trimmed.isEmpty()) {
+                try {
+                    jdbcTemplate.execute(trimmed);
+                    logger.debug("Executed DDL: {}", trimmed.substring(0, Math.min(80, trimmed.length())));
+                } catch (Exception ex) {
+                    logger.debug("DDL execution skipped or failed: {}", ex.getMessage());
+                }
+            }
+        }
+    }
+
+    private String[] getDDLStatements(JdbcTemplate jdbcTemplate) {
+        String databaseProduct = "";
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection()) {
+            databaseProduct = connection.getMetaData().getDatabaseProductName();
+            logger.info("Detected database product: {}", databaseProduct);
+        } catch (Exception e) {
+            logger.warn("Could not detect database product, defaulting to generic DDL: {}", e.getMessage());
+        }
+
+        if (databaseProduct != null && databaseProduct.toLowerCase().contains("oracle")) {
+            return new String[]{
+                "CREATE TABLE users (" +
+                    "id VARCHAR2(36) PRIMARY KEY, " +
+                    "name VARCHAR2(255) NOT NULL, " +
+                    "age NUMBER, " +
+                    "city VARCHAR2(255), " +
+                    "company VARCHAR2(255), " +
+                    "interests CLOB, " +
+                    "created_at NUMBER(19) NOT NULL, " +
+                    "updated_at NUMBER(19) NOT NULL" +
+                ")",
+                "CREATE INDEX idx_users_created_at ON users (created_at)",
+                "CREATE INDEX idx_users_name ON users (name)",
+                "CREATE TABLE audit_log (" +
+                    "id VARCHAR2(36) PRIMARY KEY, " +
+                    "user_id VARCHAR2(36) NOT NULL, " +
+                    "action VARCHAR2(50) NOT NULL, " +
+                    "timestamp NUMBER(19) NOT NULL, " +
+                    "CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE" +
+                ")",
+                "CREATE INDEX idx_audit_user_id ON audit_log (user_id)",
+                "CREATE INDEX idx_audit_timestamp ON audit_log (timestamp)"
+            };
+        }
+
+        return new String[]{
+            "CREATE TABLE IF NOT EXISTS users (" +
+                "id VARCHAR(36) PRIMARY KEY," +
+                "name VARCHAR(255) NOT NULL," +
+                "age INT," +
+                "city VARCHAR(255)," +
+                "company VARCHAR(255)," +
+                "interests JSON," +
+                "created_at BIGINT NOT NULL," +
+                "updated_at BIGINT NOT NULL," +
+                "INDEX idx_created_at (created_at)," +
+                "INDEX idx_name (name)" +
+            ")",
+            "CREATE TABLE IF NOT EXISTS audit_log (" +
+                "id VARCHAR(36) PRIMARY KEY," +
+                "user_id VARCHAR(36) NOT NULL," +
+                "action VARCHAR(50) NOT NULL," +
+                "timestamp BIGINT NOT NULL," +
+                "INDEX idx_user_id (user_id)," +
+                "INDEX idx_timestamp (timestamp)," +
+                "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE" +
+            ")"
+        };
+    }
+    
 }
 

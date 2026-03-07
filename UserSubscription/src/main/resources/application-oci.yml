@@ -20,7 +20,7 @@ spring:
     # Direct JDBC connection to OCI Autonomous Database
     # Uses environment variables: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
     # TNS_ADMIN environment variable must point to extracted wallet directory
-    url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@adb.us-ashburn-1.oraclecloud.com:1522/g006c23f27d5d41_usersubdb_high.adb.oraclecloud.com}
+    url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@usersubdb_high?TNS_ADMIN=${TNS_ADMIN}}
     username: ${SPRING_DATASOURCE_USERNAME:admin}
     password: ${SPRING_DATASOURCE_PASSWORD:UserSubscription@123}
     driver-class-name: ${DB_DRIVER:oracle.jdbc.OracleDriver}
