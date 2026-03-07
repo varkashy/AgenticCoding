@@ -1,3 +1,7 @@
 target/
 *.log
 .DS_Store
+
+# Oracle Wallet - NEVER commit wallet files to git
+wallet/
+!wallet/.gitkeep

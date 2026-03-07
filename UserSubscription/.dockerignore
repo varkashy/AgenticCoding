@@ -1,0 +1,56 @@
+# Git and version control
+.git
+.gitignore
+.github
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.classpath
+.settings
+
+# Build artifacts and dependencies
+target/
+*.class
+*.jar
+*.war
+*.ear
+.gradle
+
+# Maven
+.m2
+
+# Logs
+*.log
+logs/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Documentation files (optional, include if you want them in image)
+*.md
+README.md
+DEPLOYMENT_COMPLETE.md
+FILES.md
+IMPLEMENTATION.md
+OCI_SETUP_GUIDE.md
+QUICKSTART.md
+
+# Scripts
+run-local-to-oci.sh
+*.sh
+
+# Test files
+src/test/
+
+# Additional
+.gitattributes
+.env
+.env.local
+node_modules/
