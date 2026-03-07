@@ -124,6 +124,7 @@ public class User {
      * 
      * @param id the user's UUID (typically set by system, not by clients)
      */
+    @JsonProperty("id")
     public void setId(String id) {
         this.id = id;
     }
@@ -143,6 +144,7 @@ public class User {
      * 
      * @param name the user's name (required)
      */
+    @JsonProperty("name")
     public void setName(String name) {
         this.name = name;
     }
@@ -162,6 +164,7 @@ public class User {
      * 
      * @param age the user's age (optional)
      */
+    @JsonProperty("age")
     public void setAge(Integer age) {
         this.age = age;
     }
@@ -181,6 +184,7 @@ public class User {
      * 
      * @param city the user's city (optional)
      */
+    @JsonProperty("city")
     public void setCity(String city) {
         this.city = city;
     }
@@ -200,6 +204,7 @@ public class User {
      * 
      * @param company the user's company (optional)
      */
+    @JsonProperty("company")
     public void setCompany(String company) {
         this.company = company;
     }
@@ -219,6 +224,7 @@ public class User {
      * 
      * @param interests list of user interests (optional, stored as JSON in database)
      */
+    @JsonProperty("interests")
     public void setInterests(List<String> interests) {
         this.interests = interests;
     }
@@ -238,6 +244,7 @@ public class User {
      * 
      * @param createdAt creation timestamp in milliseconds since Unix epoch (system-set)
      */
+    @JsonProperty("createdAt")
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
     }
@@ -257,6 +264,7 @@ public class User {
      * 
      * @param updatedAt last update timestamp in milliseconds since Unix epoch (system-set)
      */
+    @JsonProperty("updatedAt")
     public void setUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
     }
