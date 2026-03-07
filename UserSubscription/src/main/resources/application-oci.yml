@@ -11,18 +11,16 @@ spring:
       enabled: false
   
   # OCI Autonomous AI Database connection
-  # Supports multiple connection methods:
-  # 1. Using Oracle Wallet (TNS):
-  #    jdbc:oracle:thin:@<db_name>_high?TNS_ADMIN=/path/to/wallet
-  #    Requires wallet files downloaded from OCI console
-  # 2. Direct connection with hostname:
-  #    jdbc:oracle:thin:@<hostname>:<port>/<service_name>
-  # 3. Using connection string from OCI:
-  #    Set SPRING_DATASOURCE_URL environment variable
+  # Connects directly to OCI using TCPS (secure connection)
+  # Requires: Oracle Wallet for certificate validation
+  # Get wallet from OCI Console:
+  #   Databases → user-subscription-aidb → Database Connection → Download Wallet
+  # Then set: export TNS_ADMIN=$HOME/.oci/wallet
   datasource:
-    # Default: Autonomous AI Database with wallet
-    # For Autonomous AI Database named 'usersubdb', use hostname from OCI console
-    url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@usersubdb_high?TNS_ADMIN=/opt/oracle/tns/Wallet_usersubdb}
+    # Direct JDBC connection to OCI Autonomous Database
+    # Uses environment variables: SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+    # TNS_ADMIN environment variable must point to extracted wallet directory
+    url: ${SPRING_DATASOURCE_URL:jdbc:oracle:thin:@adb.us-ashburn-1.oraclecloud.com:1522/g006c23f27d5d41_usersubdb_high.adb.oraclecloud.com}
     username: ${SPRING_DATASOURCE_USERNAME:admin}
     password: ${SPRING_DATASOURCE_PASSWORD:UserSubscription@123}
     driver-class-name: ${DB_DRIVER:oracle.jdbc.OracleDriver}

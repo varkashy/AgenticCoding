@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------
+Test set: com.agentic.subscription.UserSubscriptionIntegrationE2ETest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.848 s <<< FAILURE! - in com.agentic.subscription.UserSubscriptionIntegrationE2ETest
+com.agentic.subscription.UserSubscriptionIntegrationE2ETest  Time elapsed: 0.846 s  <<< ERROR!
+java.lang.IllegalStateException: Could not find a valid Docker environment. Please see logs and check configuration
+
