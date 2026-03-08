@@ -19,11 +19,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-
       # 3. Build JAR
       - name: Build with Maven
+        working-directory: UserSubscription
         run: mvn clean package -DskipTests
-
       # 4. Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -41,13 +40,14 @@ jobs:
 
       # 6. Build and push Docker image
       - name: Build and push Docker image
+        working-directory: UserSubscription
         run: |
-          docker buildx build --platform linux/amd64 -t user-subscription .
+          docker buildx build --platform linux/amd64 -t usersubscription .
           docker tag user-subscription:latest \
-            230989377092.dkr.ecr.us-east-1.amazonaws.com/user-subscription:latest
+            230989377092.dkr.ecr.us-east-1.amazonaws.com/usersubscription:latest
           docker push \
-            230989377092.dkr.ecr.us-east-1.amazonaws.com/user-subscription:latest
-
+            230989377092.dkr.ecr.us-east-1.amazonaws.com/usersubscription:latest
+      
       # 7. Deploy to Primary EC2
       - name: Deploy to Primary EC2
         uses: appleboy/ssh-action@v0.1.10
