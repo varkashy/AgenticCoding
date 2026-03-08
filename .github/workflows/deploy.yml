@@ -37,7 +37,13 @@ jobs:
           aws ecr get-login-password --region us-east-1 | \
           docker login --username AWS --password-stdin \
           230989377092.dkr.ecr.us-east-1.amazonaws.com
-
+      # Add this step before "Build and push Docker image"
+      - name: Restore OCI Wallet
+        working-directory: UserSubscription
+        run: |
+          echo "${{ secrets.OCI_WALLET_BASE64 }}" | base64 --decode > wallet.zip
+          unzip wallet.zip
+          rm wallet.zip
       # 6. Build and push Docker image
       - name: Build and push Docker image
         working-directory: UserSubscription
