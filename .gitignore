@@ -1,0 +1,3 @@
+# Prevent accidental commits of OCI wallet archives
+**/wallet.zip
+**/Wallet*.zip
