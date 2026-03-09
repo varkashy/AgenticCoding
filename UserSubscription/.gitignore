@@ -5,3 +5,5 @@ target/
 # Oracle Wallet - NEVER commit wallet files to git
 wallet/
 !wallet/.gitkeep
+wallet.zip
+Wallet*.zip
